@@ -138,24 +138,6 @@ public class App extends JFrame {
         for (String[] d : data) {
             table.addRow(d);
         }
-//        for (int i = 0; i < data.size(); i++) {
-//            String[] strings = (String[]) ((Object[])data.get(i))[0];
-//            //System.out.println(data.get(i)[0]);
-//        }
-
-        /*table.addRow();
-
-        String[] temp = new String[result.getMetaData().getColumnCount()];
-
-        while (result.next()) {
-            temp[0] = result.getString("versenyzo.id");
-            temp[1] = result.getString("nev");
-            temp[2] = result.getString("szakmaNev");
-            temp[3] = result.getString("orszagNev");
-            temp[4] = result.getString("pont");
-
-            ((DefaultTableModel) MainTable.getModel()).addRow(temp);
-        }*/
     }
 
 
