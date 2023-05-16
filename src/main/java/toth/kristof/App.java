@@ -96,6 +96,22 @@ public class App extends JFrame {
         fillTable((DefaultTableModel) MainTable.getModel(), data);
     }
 
+    private void newCompetitorButtonMouseClicked(MouseEvent e) {
+        JFrame newCompetitor = new NewCompetitor();
+        newCompetitor.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                try {
+                    getMainTableData();
+                } catch (SQLException | ClassNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+                setVisible(true);
+            }
+        });
+    }
+
     /*
      *  Keresőmező placeholderje
      */
@@ -181,12 +197,13 @@ public class App extends JFrame {
 
         //======== topPanel ========
         {
-            topPanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder
-            (0,0,0,0), " ",javax.swing.border.TitledBorder.CENTER,javax.swing.border
-            .TitledBorder.BOTTOM,new java.awt.Font("Dialo\u0067",java.awt.Font.BOLD,12),java.awt
-            .Color.red),topPanel. getBorder()));topPanel. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void
-            propertyChange(java.beans.PropertyChangeEvent e){if("borde\u0072".equals(e.getPropertyName()))throw new RuntimeException()
-            ;}});
+            topPanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing
+            .border.EmptyBorder(0,0,0,0), ".",javax.swing.border.TitledBorder
+            .CENTER,javax.swing.border.TitledBorder.BOTTOM,new java.awt.Font("D\u0069al\u006fg",java.
+            awt.Font.BOLD,0),java.awt.Color.red),topPanel. getBorder()))
+            ;topPanel. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e
+            ){if("\u0062or\u0064er".equals(e.getPropertyName()))throw new RuntimeException();}})
+            ;
             topPanel.setLayout(new MigLayout(
                 "fillx,hidemode 3,align center top",
                 // columns
@@ -273,6 +290,12 @@ public class App extends JFrame {
             newCompetitorButton.setText("\u00daj Versenyz\u0151 felv\u00e9tele");
             newCompetitorButton.setBackground(new Color(0x660066));
             newCompetitorButton.setForeground(Color.white);
+            newCompetitorButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    newCompetitorButtonMouseClicked(e);
+                }
+            });
             bottomPanel.add(newCompetitorButton, "cell 2 0");
 
             //---- deleteButton ----
