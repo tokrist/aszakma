@@ -37,7 +37,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "techLabel"
-				"text": "text"
+				"text": "Szakma megnevezése"
 				"horizontalAlignment": 4
 				"labelFor": new FormReference( "techBox" )
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
@@ -66,6 +66,7 @@ new FormModel {
 				"text": "Versenyző felvétele"
 				"background": new java.awt.Color( 51, 153, 0, 255 )
 				"foreground": new java.awt.Color( 255, 255, 255, 255 )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "submitCompetitorMouseClicked", true ) )
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 1 5 4 1"
 			} )

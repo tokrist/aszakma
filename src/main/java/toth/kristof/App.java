@@ -96,7 +96,7 @@ public class App extends JFrame {
         fillTable((DefaultTableModel) MainTable.getModel(), data);
     }
 
-    private void newCompetitorButtonMouseClicked(MouseEvent e) {
+    private void newCompetitorButtonMouseClicked(MouseEvent e) throws SQLException, ClassNotFoundException {
         JFrame newCompetitor = new NewCompetitor();
         newCompetitor.addWindowListener(new WindowAdapter() {
             @Override
@@ -115,7 +115,7 @@ public class App extends JFrame {
     /*
      *  Keresőmező placeholderje
      */
-    public void searchFieldPlaceholder() {
+    private void searchFieldPlaceholder() {
         searchField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -136,7 +136,7 @@ public class App extends JFrame {
      * SQL csatlakozás
      * @return Statement
      */
-    private Statement getStatement() throws SQLException, ClassNotFoundException {
+    public static Statement getStatement() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/vizsga_szakma?serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8", "root", "");
         return connection.createStatement();
@@ -293,7 +293,11 @@ public class App extends JFrame {
             newCompetitorButton.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    newCompetitorButtonMouseClicked(e);
+                    try {
+                        newCompetitorButtonMouseClicked(e);
+                    } catch (SQLException | ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
             bottomPanel.add(newCompetitorButton, "cell 2 0");
