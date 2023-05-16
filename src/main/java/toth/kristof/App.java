@@ -68,7 +68,7 @@ public class App extends JFrame {
 
     private void fillMainTable(ResultSet result) throws SQLException {
         result.last();
-        String[][] data = new String[result.getRow()][result.getMetaData().getColumnCount()];
+        String[][] data = new String[result.getRow() - 1][result.getMetaData().getColumnCount()];
 
         result.first();
         int i = 0;
@@ -86,6 +86,9 @@ public class App extends JFrame {
         fillTable((DefaultTableModel) MainTable.getModel(), data);
     }
 
+    /*
+     *  Keresőmező placeholderje
+     */
     public void searchFieldPlaceholder() {
         searchField.addFocusListener(new FocusListener() {
             @Override
@@ -134,8 +137,12 @@ public class App extends JFrame {
         IntStream.range(0, table.getRowCount()).map(i -> 0).forEach(table::removeRow);
     }
 
+    /*
+     * Tábla feltöltése adattal
+     */
     private void fillTable(DefaultTableModel table, String[][] data) {
         for (String[] d : data) {
+            //System.out.println(Arrays.toString(d));
             table.addRow(d);
         }
     }
