@@ -14,11 +14,7 @@ import net.miginfocom.swing.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.IntStream;
-import java.util.zip.DeflaterOutputStream;
 
 /**
  * @author tokri
