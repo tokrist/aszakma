@@ -14,12 +14,16 @@ import net.miginfocom.swing.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.IntStream;
 
 /**
  * @author tokri
  */
 public class App extends JFrame {
+    String[] mainTableColumns = new String[]{"Azonosító", "Teljes név", "Szakma", "Ország", "Pont"};
     public App() {
         setTitle("A Szakma");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,6 +32,7 @@ public class App extends JFrame {
 
         initComponents();
 
+        defineTableColumns((DefaultTableModel) MainTable.getModel(), mainTableColumns);
         getMainTableData();
 
         searchFieldPlaceholder();
@@ -39,17 +44,7 @@ public class App extends JFrame {
         Statement statement = getStatement();
         try {
             ResultSet result = statement.executeQuery("SELECT * FROM versenyzo INNER JOIN szakma ON versenyzo.szakmaId = szakma.id INNER JOIN orszag ON versenyzo.orszagId = orszag.id ORDER BY szakmaNev, nev");
-            String[] temp = new String[result.getMetaData().getColumnCount()];
-
-            while (result.next()) {
-                temp[0] = result.getString("versenyzo.id");
-                temp[1] = result.getString("nev");
-                temp[2] = result.getString("szakmaNev");
-                temp[3] = result.getString("orszagNev");
-                temp[4] = result.getString("pont");
-
-                ((DefaultTableModel) MainTable.getModel()).addRow(temp);
-            }
+            fillMainTable(result);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -62,23 +57,33 @@ public class App extends JFrame {
 
             try {
                 ResultSet result = statement.executeQuery("SELECT * FROM versenyzo INNER JOIN szakma ON versenyzo.szakmaId = szakma.id INNER JOIN orszag ON versenyzo.orszagId = orszag.id WHERE nev LIKE '%"+searchField.getText()+"%' OR szakma.szakmaNev LIKE '%"+searchField.getText()+"%' OR orszag.orszagNev LIKE '%"+searchField.getText()+"%'");
-                String[] temp = new String[result.getMetaData().getColumnCount()];
-
-                while (result.next()) {
-                    temp[0] = result.getString("versenyzo.id");
-                    temp[1] = result.getString("nev");
-                    temp[2] = result.getString("szakmaNev");
-                    temp[3] = result.getString("orszagNev");
-                    temp[4] = result.getString("pont");
-
-                    ((DefaultTableModel) MainTable.getModel()).addRow(temp);
-                }
+                fillMainTable(result);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
         } else {
             getMainTableData();
         }
+    }
+
+    private void fillMainTable(ResultSet result) throws SQLException {
+        result.last();
+        String[][] data = new String[result.getRow()][result.getMetaData().getColumnCount()];
+
+        result.first();
+        int i = 0;
+        while(result.next()) {
+            String[] temp = new String[mainTableColumns.length];
+            temp[0] = result.getString("versenyzo.id");
+            temp[1] = result.getString("nev");
+            temp[2] = result.getString("szakmaNev");
+            temp[3] = result.getString("orszagNev");
+            temp[4] = result.getString("pont");
+            data[i] = temp;
+            i++;
+        }
+
+        fillTable((DefaultTableModel) MainTable.getModel(), data);
     }
 
     public void searchFieldPlaceholder() {
@@ -116,6 +121,7 @@ public class App extends JFrame {
      * Tábla oszlopok megadása
      */
     private void defineTableColumns(DefaultTableModel table, String[] columns) {
+        table.setColumnCount(0);
         for (String column : columns) {
             table.addColumn(column);
         }
@@ -126,6 +132,30 @@ public class App extends JFrame {
      */
     private void emptyTable(DefaultTableModel table) {
         IntStream.range(0, table.getRowCount()).map(i -> 0).forEach(table::removeRow);
+    }
+
+    private void fillTable(DefaultTableModel table, String[][] data) {
+        for (String[] d : data) {
+            table.addRow(d);
+        }
+//        for (int i = 0; i < data.size(); i++) {
+//            String[] strings = (String[]) ((Object[])data.get(i))[0];
+//            //System.out.println(data.get(i)[0]);
+//        }
+
+        /*table.addRow();
+
+        String[] temp = new String[result.getMetaData().getColumnCount()];
+
+        while (result.next()) {
+            temp[0] = result.getString("versenyzo.id");
+            temp[1] = result.getString("nev");
+            temp[2] = result.getString("szakmaNev");
+            temp[3] = result.getString("orszagNev");
+            temp[4] = result.getString("pont");
+
+            ((DefaultTableModel) MainTable.getModel()).addRow(temp);
+        }*/
     }
 
 
@@ -157,7 +187,7 @@ public class App extends JFrame {
         //======== panel2 ========
         {
             panel2.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing
-            . border .EmptyBorder ( 0, 0 ,0 , 0) ,  "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e" , javax. swing .border . TitledBorder
+            . border .EmptyBorder ( 0, 0 ,0 , 0) ,  "" , javax. swing .border . TitledBorder
             . CENTER ,javax . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dialo\u0067", java .
             awt . Font. BOLD ,12 ) ,java . awt. Color .red ) ,panel2. getBorder () ) )
             ; panel2. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java . beans. PropertyChangeEvent e
