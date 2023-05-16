@@ -18,13 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.IntStream;
+import java.util.zip.DeflaterOutputStream;
 
 /**
  * @author tokri
  */
 public class App extends JFrame {
     String[] mainTableColumns = new String[]{"Azonosító", "Teljes név", "Szakma", "Ország", "Pont"};
-    public App() {
+    public App() throws SQLException, ClassNotFoundException {
         setTitle("A Szakma");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -38,7 +39,7 @@ public class App extends JFrame {
         searchFieldPlaceholder();
     }
 
-    private void getMainTableData() {
+    private void getMainTableData() throws SQLException, ClassNotFoundException {
         emptyTable((DefaultTableModel) MainTable.getModel());
 
         Statement statement = getStatement();
@@ -50,7 +51,7 @@ public class App extends JFrame {
         }
     }
 
-    private void searchFieldKeyReleased(KeyEvent e) {
+    private void searchFieldKeyReleased(KeyEvent e) throws SQLException, ClassNotFoundException {
         Statement statement = getStatement();
         if(searchField.getText().trim().length() >= 3) {
             emptyTable((DefaultTableModel) MainTable.getModel());
@@ -64,6 +65,15 @@ public class App extends JFrame {
         } else {
             getMainTableData();
         }
+    }
+
+    private void deleteButtonMouseClicked(MouseEvent e) throws SQLException, ClassNotFoundException {
+        Statement statement = getStatement();
+
+        int deleteId = Integer.parseInt((String) MainTable.getValueAt(MainTable.getSelectedRow(), 0));
+        statement.execute("DELETE FROM versenyzo WHERE id = " + deleteId);
+
+        getMainTableData();
     }
 
     private void fillMainTable(ResultSet result) throws SQLException {
@@ -110,14 +120,10 @@ public class App extends JFrame {
      * SQL csatlakozás
      * @return Statement
      */
-    private Statement getStatement() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/vizsga_szakma?serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8", "root", "");
-            return connection.createStatement();
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    private Statement getStatement() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/vizsga_szakma?serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8", "root", "");
+        return connection.createStatement();
     }
 
     /*
@@ -142,7 +148,6 @@ public class App extends JFrame {
      */
     private void fillTable(DefaultTableModel table, String[][] data) {
         for (String[] d : data) {
-            //System.out.println(Arrays.toString(d));
             table.addRow(d);
         }
     }
@@ -151,14 +156,15 @@ public class App extends JFrame {
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Kristof Toth
-        panel2 = new JPanel();
+        topPanel = new JPanel();
         searchField = new JTextField();
         MainPanel = new JScrollPane();
         MainTable = new JTable();
-        panel1 = new JPanel();
+        bottomPanel = new JPanel();
         exportPDFButton = new JButton();
         fiterButton = new JButton();
         newCompetitorButton = new JButton();
+        deleteButton = new JButton();
 
         //======== this ========
         var contentPane = getContentPane();
@@ -173,16 +179,15 @@ public class App extends JFrame {
             "[]" +
             "[]"));
 
-        //======== panel2 ========
+        //======== topPanel ========
         {
-            panel2.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing
-            . border .EmptyBorder ( 0, 0 ,0 , 0) ,  "" , javax. swing .border . TitledBorder
-            . CENTER ,javax . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dialo\u0067", java .
-            awt . Font. BOLD ,12 ) ,java . awt. Color .red ) ,panel2. getBorder () ) )
-            ; panel2. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java . beans. PropertyChangeEvent e
-            ) { if( "borde\u0072" .equals ( e. getPropertyName () ) )throw new RuntimeException( ) ;} } )
-            ;
-            panel2.setLayout(new MigLayout(
+            topPanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder
+            (0,0,0,0), " ",javax.swing.border.TitledBorder.CENTER,javax.swing.border
+            .TitledBorder.BOTTOM,new java.awt.Font("Dialo\u0067",java.awt.Font.BOLD,12),java.awt
+            .Color.red),topPanel. getBorder()));topPanel. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void
+            propertyChange(java.beans.PropertyChangeEvent e){if("borde\u0072".equals(e.getPropertyName()))throw new RuntimeException()
+            ;}});
+            topPanel.setLayout(new MigLayout(
                 "fillx,hidemode 3,align center top",
                 // columns
                 "[fill]",
@@ -194,12 +199,16 @@ public class App extends JFrame {
             searchField.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyReleased(KeyEvent e) {
-                    searchFieldKeyReleased(e);
+                    try {
+                        searchFieldKeyReleased(e);
+                    } catch (SQLException | ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             });
-            panel2.add(searchField, "cell 0 0,wmax 100%");
+            topPanel.add(searchField, "cell 0 0,wmax 100%");
         }
-        contentPane.add(panel2, "cell 0 0,alignx center,growx 0,width 100%");
+        contentPane.add(topPanel, "cell 0 0,alignx center,growx 0,width 100%");
 
         //======== MainPanel ========
         {
@@ -236,11 +245,12 @@ public class App extends JFrame {
         }
         contentPane.add(MainPanel, "cell 0 1,aligny center,grow 100 0,width :100%:100%");
 
-        //======== panel1 ========
+        //======== bottomPanel ========
         {
-            panel1.setLayout(new MigLayout(
+            bottomPanel.setLayout(new MigLayout(
                 "fillx,hidemode 3,align center top",
                 // columns
+                "[fill]" +
                 "[fill]" +
                 "[fill]" +
                 "[fill]",
@@ -249,17 +259,39 @@ public class App extends JFrame {
 
             //---- exportPDFButton ----
             exportPDFButton.setText("Export\u00e1l\u00e1s PDF-be");
-            panel1.add(exportPDFButton, "cell 0 0");
+            exportPDFButton.setBackground(new Color(0x000066));
+            exportPDFButton.setForeground(Color.white);
+            bottomPanel.add(exportPDFButton, "cell 0 0");
 
             //---- fiterButton ----
             fiterButton.setText("Sz\u0171r\u00e9s");
-            panel1.add(fiterButton, "cell 1 0");
+            fiterButton.setBackground(new Color(0x006600));
+            fiterButton.setForeground(Color.white);
+            bottomPanel.add(fiterButton, "cell 1 0");
 
             //---- newCompetitorButton ----
             newCompetitorButton.setText("\u00daj Versenyz\u0151 felv\u00e9tele");
-            panel1.add(newCompetitorButton, "cell 2 0");
+            newCompetitorButton.setBackground(new Color(0x660066));
+            newCompetitorButton.setForeground(Color.white);
+            bottomPanel.add(newCompetitorButton, "cell 2 0");
+
+            //---- deleteButton ----
+            deleteButton.setText("Kijel\u00f6lt t\u00f6rl\u00e9se");
+            deleteButton.setBackground(new Color(0xcc0000));
+            deleteButton.setForeground(Color.white);
+            deleteButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        deleteButtonMouseClicked(e);
+                    } catch (SQLException | ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            bottomPanel.add(deleteButton, "cell 3 0");
         }
-        contentPane.add(panel1, "cell 0 3");
+        contentPane.add(bottomPanel, "cell 0 3");
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
@@ -267,13 +299,14 @@ public class App extends JFrame {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
     // Generated using JFormDesigner Evaluation license - Kristof Toth
-    private JPanel panel2;
+    private JPanel topPanel;
     private JTextField searchField;
     private JScrollPane MainPanel;
     private JTable MainTable;
-    private JPanel panel1;
+    private JPanel bottomPanel;
     private JButton exportPDFButton;
     private JButton fiterButton;
     private JButton newCompetitorButton;
+    private JButton deleteButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

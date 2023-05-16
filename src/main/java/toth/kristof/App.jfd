@@ -14,7 +14,7 @@ new FormModel {
 				"$columnConstraints": "[fill]"
 				"$rowConstraints": "[]"
 			} ) {
-				name: "panel2"
+				name: "topPanel"
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "searchField"
 					"text": "Keresés (minimum 3 karakter)"
@@ -72,27 +72,42 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
 				"$layoutConstraints": "fillx,hidemode 3,align center top"
-				"$columnConstraints": "[fill][fill][fill]"
+				"$columnConstraints": "[fill][fill][fill][fill]"
 				"$rowConstraints": "[]"
 			} ) {
-				name: "panel1"
+				name: "bottomPanel"
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "exportPDFButton"
 					"text": "Exportálás PDF-be"
+					"background": new java.awt.Color( 0, 0, 102, 255 )
+					"foreground": new java.awt.Color( 255, 255, 255, 255 )
 				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 					"value": "cell 0 0"
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "fiterButton"
 					"text": "Szűrés"
+					"background": new java.awt.Color( 0, 102, 0, 255 )
+					"foreground": new java.awt.Color( 255, 255, 255, 255 )
 				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 					"value": "cell 1 0"
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "newCompetitorButton"
 					"text": "Új Versenyző felvétele"
+					"background": new java.awt.Color( 102, 0, 102, 255 )
+					"foreground": new java.awt.Color( 255, 255, 255, 255 )
 				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 					"value": "cell 2 0"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "deleteButton"
+					"text": "Kijelölt törlése"
+					"background": new java.awt.Color( 204, 0, 0, 255 )
+					"foreground": new java.awt.Color( 255, 255, 255, 255 )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "deleteButtonMouseClicked", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 3 0"
 				} )
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 3"
