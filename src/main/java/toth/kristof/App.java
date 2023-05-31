@@ -29,16 +29,16 @@ public class App extends JFrame {
 
         initComponents();
 
-        defineTableColumns((DefaultTableModel) MainTable.getModel(), mainTableColumns);
+        Helper.defineTableColumns((DefaultTableModel) MainTable.getModel(), mainTableColumns);
         getMainTableData();
 
         searchFieldPlaceholder();
     }
 
     private void getMainTableData() throws SQLException, ClassNotFoundException {
-        emptyTable((DefaultTableModel) MainTable.getModel());
+        Helper.emptyTable((DefaultTableModel) MainTable.getModel());
 
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
         try {
             ResultSet result = statement.executeQuery("SELECT * FROM versenyzo INNER JOIN szakma ON versenyzo.szakmaId = szakma.id INNER JOIN orszag ON versenyzo.orszagId = orszag.id ORDER BY szakmaNev, nev");
             fillMainTable(result);
@@ -48,9 +48,9 @@ public class App extends JFrame {
     }
 
     private void searchFieldKeyReleased(KeyEvent e) throws SQLException, ClassNotFoundException {
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
         if(searchField.getText().trim().length() >= 3) {
-            emptyTable((DefaultTableModel) MainTable.getModel());
+            Helper.emptyTable((DefaultTableModel) MainTable.getModel());
 
             try {
                 ResultSet result = statement.executeQuery("SELECT * FROM versenyzo INNER JOIN szakma ON versenyzo.szakmaId = szakma.id INNER JOIN orszag ON versenyzo.orszagId = orszag.id WHERE nev LIKE '%"+searchField.getText()+"%' OR szakma.szakmaNev LIKE '%"+searchField.getText()+"%' OR orszag.orszagNev LIKE '%"+searchField.getText()+"%'");
@@ -64,7 +64,7 @@ public class App extends JFrame {
     }
 
     private void deleteButtonMouseClicked(MouseEvent e) throws SQLException, ClassNotFoundException {
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
 
         int deleteId = Integer.parseInt((String) MainTable.getValueAt(MainTable.getSelectedRow(), 0));
         statement.execute("DELETE FROM versenyzo WHERE id = " + deleteId);
@@ -89,7 +89,7 @@ public class App extends JFrame {
             i++;
         }
 
-        fillTable((DefaultTableModel) MainTable.getModel(), data);
+        Helper.fillTable((DefaultTableModel) MainTable.getModel(), data);
     }
 
     private void newCompetitorButtonMouseClicked(MouseEvent e) throws SQLException, ClassNotFoundException {
@@ -126,42 +126,6 @@ public class App extends JFrame {
                 }
             }
         });
-    }
-
-    /*
-     * SQL csatlakozás
-     * @return Statement
-     */
-    public static Statement getStatement() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/vizsga_szakma?serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8", "root", "");
-        return connection.createStatement();
-    }
-
-    /*
-     * Tábla oszlopok megadása
-     */
-    private void defineTableColumns(DefaultTableModel table, String[] columns) {
-        table.setColumnCount(0);
-        for (String column : columns) {
-            table.addColumn(column);
-        }
-    }
-
-    /*
-     * Tábla kiürítése
-     */
-    private void emptyTable(DefaultTableModel table) {
-        IntStream.range(0, table.getRowCount()).map(i -> 0).forEach(table::removeRow);
-    }
-
-    /*
-     * Tábla feltöltése adattal
-     */
-    private void fillTable(DefaultTableModel table, String[][] data) {
-        for (String[] d : data) {
-            table.addRow(d);
-        }
     }
 
 

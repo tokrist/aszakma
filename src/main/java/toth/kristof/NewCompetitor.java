@@ -34,7 +34,7 @@ public class NewCompetitor extends JFrame {
         String country = Objects.requireNonNull(countryBox.getSelectedItem()).toString();
         String points = pointField.getText();
 
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
 
         statement.addBatch("SET @orszagIdF = (SELECT id FROM orszag WHERE orszagNev = '"+country+"');");
         statement.addBatch("SET @szakmaIdF = (SELECT id FROM szakma WHERE szakmaNev = '"+tech+"');");
@@ -48,7 +48,7 @@ public class NewCompetitor extends JFrame {
     }
 
     private void getCountries() throws SQLException, ClassNotFoundException {
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM orszag");
         while (result.next()) {
             countryBox.addItem(result.getString("orszagNev"));
@@ -56,21 +56,11 @@ public class NewCompetitor extends JFrame {
     }
 
     private void getTech() throws SQLException, ClassNotFoundException {
-        Statement statement = getStatement();
+        Statement statement = Helper.getStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM szakma");
         while (result.next()) {
             techBox.addItem(result.getString("szakmaNev"));
         }
-    }
-
-    /*
-     * SQL csatlakozás
-     * @return Statement
-     */
-    private Statement getStatement() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/vizsga_szakma?serverTimezone=UTC&useUnicode=yes&characterEncoding=UTF-8", "root", "");
-        return connection.createStatement();
     }
 
     private void initComponents() {
